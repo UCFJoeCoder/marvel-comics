@@ -1,11 +1,15 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
+    id("dagger.hilt.android.plugin")
 }
 
 android {
     namespace = "com.ucfjoe.marvelcomics"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.ucfjoe.marvelcomics"
@@ -17,6 +21,31 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+
+        try {
+            val keyStoreFile = project.rootProject.file("apikey.properties")
+            if (keyStoreFile.exists()) {
+                val properties = Properties()
+                properties.load(keyStoreFile.inputStream())
+                buildConfigField(
+                    "String",
+                    "MARVEL_API_KEY",
+                    properties.getProperty("MARVEL_API_KEY") ?: ""
+                )
+                buildConfigField(
+                    "String",
+                    "MARVEL_PRIVATE_KEY",
+                    properties.getProperty("MARVEL_PRIVATE_KEY") ?: ""
+                )
+            }
+            else
+            {
+                throw StopExecutionException("apikey.properties file is missing from the root of the project.")
+            }
+        }
+        catch (e:Exception) {
+            throw StopExecutionException("apikey.properties file is missing from the root of the project.\r\n${e.message!!}")
         }
     }
 
@@ -38,9 +67,10 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        kotlinCompilerExtensionVersion = "1.5.4"
     }
     packaging {
         resources {
@@ -66,4 +96,36 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    // Lifecycle ViewModel and Runtime dependencies
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
+
+    // Retrofit dependencies (Http Requests)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.3")
+
+//    // Coroutines
+//    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+
+    // GSON
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    // Coil (for async image downloading)
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
+    // Navigation Compose
+    implementation("androidx.navigation:navigation-compose:2.7.5")
+
+    // Room database
+    val room_version = "2.6.0"
+    implementation("androidx.room:room-runtime:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+
+    // Dagger Hilt (Dependency Injection)
+    implementation("com.google.dagger:hilt-android:2.48.1")
+    ksp("com.google.dagger:hilt-android-compiler:2.48.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 }
