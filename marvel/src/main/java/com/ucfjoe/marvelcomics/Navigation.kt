@@ -21,7 +21,7 @@ fun Navigation() {
             startDestination = Screen.CharactersScreen.route,
             route = "marvel"
         ) {
-            composable(route = Screen.CharactersScreen.route) {entry ->
+            composable(route = Screen.CharactersScreen.route) {
                 ListCharactersScreen(
                     onNavigation = {
                         navController.navigate(it.route)

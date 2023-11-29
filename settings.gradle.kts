@@ -14,4 +14,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Marvel Comics"
-include(":app")
+include(":marvel")

@@ -1,6 +1,5 @@
 package com.ucfjoe.marvelcomics.feature_marvel.data.repository
 
-import android.util.Log
 import com.ucfjoe.marvelcomics.core.util.Resource
 import com.ucfjoe.marvelcomics.feature_marvel.data.local.MarvelDao
 import com.ucfjoe.marvelcomics.feature_marvel.data.local.toCharacter
@@ -21,6 +20,13 @@ class MarvelRepositoryImpl(
     private val dao: MarvelDao
 ) : MarvelRepository {
 
+    private companion object {
+        const val HTTP_WEB_CHARACTER = "Failed to get Characters from Web"
+        const val HTTP_WEB_COMIC = "Failed to get Comics from Web"
+        const val IO_WEB = "Couldn't reach server, check your internet connection"
+        const val REQUIRED_FIELD_CHARACTER_ID = "CharacterId is required for retrieving comics"
+    }
+
     override fun getCharacters(
         limit: Int,
         offset: Int,
@@ -35,14 +41,12 @@ class MarvelRepositoryImpl(
                 api.getCharactersByNameStartsWith(limit, offset, name)
             }
         } catch (e: HttpException) {
-            emit(Resource.Error("Failed to get Characters from Web"))
+            emit(Resource.Error(HTTP_WEB_CHARACTER))
             return@flow
         } catch (e: IOException) {
-            emit(Resource.Error("Couldn't reach server, check your internet connection"))
+            emit(Resource.Error(IO_WEB))
             return@flow
         }
-
-        Log.d("MarvelRepositoryImpl", "Reso ${characterDataWrapper.body()}")
 
         val charactersNet = characterDataWrapper.body()?.data?.results ?: emptyList()
         val characters = charactersNet.map { it.toCharacter() }
@@ -61,10 +65,10 @@ class MarvelRepositoryImpl(
             val characterDataWrapper = try {
                 api.getCharacter(characterId)
             } catch (e: HttpException) {
-                emit(Resource.Error("Failed to get Characters from Web"))
+                emit(Resource.Error(HTTP_WEB_CHARACTER))
                 return@flow
             } catch (e: IOException) {
-                emit(Resource.Error("Couldn't reach server, check your internet connection"))
+                emit(Resource.Error(IO_WEB))
                 return@flow
             }
 
@@ -93,17 +97,16 @@ class MarvelRepositoryImpl(
 
         val comicDataWrapper = try {
             if (characterId.isBlank()) {
-                emit(Resource.Error("CharacterId is required for retrieving comics"))
+                emit(Resource.Error(REQUIRED_FIELD_CHARACTER_ID))
                 return@flow
-            }
-            else {
+            } else {
                 api.getComicsByCharacterId(limit, offset, characterId)
             }
         } catch (e: HttpException) {
-            emit(Resource.Error("Failed to get Comics from Web"))
+            emit(Resource.Error(HTTP_WEB_COMIC))
             return@flow
         } catch (e: IOException) {
-            emit(Resource.Error("Couldn't reach server, check your internet connection"))
+            emit(Resource.Error(IO_WEB))
             return@flow
         }
 

@@ -62,6 +62,7 @@ object MarvelModule {
         return Room.databaseBuilder(
             app, MarvelDatabase::class.java, "marvel_db"
         ).build()
+    //.addMigrations(MarvelDatabase.migrationFrom1To2)
     }
 
     @Provides

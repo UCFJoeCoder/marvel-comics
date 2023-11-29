@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class CharacterEntity(
     @PrimaryKey @ColumnInfo(name="id") val characterId: String,
     @ColumnInfo(name="name") val name: String,
-    @ColumnInfo(name="description")  val description: String,
+    @ColumnInfo(name="description")  val description: String?,
     @ColumnInfo(name="image") val thumbnail: String,
     @ColumnInfo(name="total_comics") val comicsCounts: Int,
     @ColumnInfo(name="total_stories") val storiesCount: Int,

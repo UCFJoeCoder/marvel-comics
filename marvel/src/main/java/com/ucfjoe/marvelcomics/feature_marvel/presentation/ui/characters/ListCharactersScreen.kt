@@ -23,20 +23,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ucfjoe.marvelcomics.feature_marvel.presentation.ui.UiEvent
 import kotlinx.coroutines.flow.collectLatest
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ListCharactersScreen(
     onNavigation: (UiEvent.Navigation) -> Unit,
     viewModel: CharactersViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collectLatest { event ->
@@ -68,10 +71,12 @@ fun ListCharactersScreen(
             onValueChange = {
                 searchText = it
             },
-            label = { Text("Search Marvel Characters") })
+            label = { Text("Search Marvel Characters") }
+        )
         Spacer(modifier = Modifier.height(20.dp))
         Button(onClick = {
             viewModel.onSearch(searchText)
+            keyboardController?.hide()
         }) {
             Text("Search")
         }

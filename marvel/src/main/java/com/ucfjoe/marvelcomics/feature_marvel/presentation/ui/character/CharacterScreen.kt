@@ -76,14 +76,14 @@ fun CharacterScreen(
                 )
             }
         }
-        if (state.character.description.isNotBlank()) {
+        state.character.description?.let {description ->
             item {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    Text(text = state.character.description)
+                    Text(text = description)
                 }
             }
         }
@@ -132,16 +132,14 @@ fun CharacterScreen(
                         )
                     }
                 }
-                items(state.comics.size) {
-                    if (it >= state.comics.size - 1 && !state.endReached && !state.isLoading) {
-                        viewModel.loadComicsPaginated()
-                    }
+                items(state.comics.size) { index ->
+                    viewModel.checkIfMorePagesAreNeeded(index)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 6.dp)
                     ) {
-                        ComicItem(comic = state.comics[it])
+                        ComicItem(comic = state.comics[index])
                     }
                 }
                 if (state.isLoading) {

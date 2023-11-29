@@ -13,10 +13,15 @@ android {
 
     defaultConfig {
         applicationId = "com.ucfjoe.marvelcomics"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
+
+        // Tell room where to store the export the schema to
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

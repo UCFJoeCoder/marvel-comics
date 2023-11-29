@@ -76,7 +76,7 @@ class CharacterViewModel @Inject constructor(
         viewModelScope.launch {
             getComics(PAGE_SIZE, (PAGE_SIZE * state.value.page), state.value.character.characterId)
                 .onEach { result ->
-                    when(result) {
+                    when (result) {
                         is Resource.Success -> {
                             _state.value = state.value.copy(
                                 comics = state.value.comics + (result.data ?: emptyList()),
@@ -85,6 +85,7 @@ class CharacterViewModel @Inject constructor(
                                 page = state.value.page + 1
                             )
                         }
+
                         is Resource.Error -> {
                             _state.value = state.value.copy(isLoading = false)
                             sendUiEvent(
@@ -93,6 +94,7 @@ class CharacterViewModel @Inject constructor(
                                 )
                             )
                         }
+
                         is Resource.Loading -> {
                             _state.value = state.value.copy(isLoading = true)
                         }
@@ -104,6 +106,19 @@ class CharacterViewModel @Inject constructor(
     private fun sendUiEvent(event: UiEvent) {
         viewModelScope.launch {
             _uiEvent.send(event)
+        }
+    }
+
+    /**
+     * If the index of the item being requested is greater than or equal to the max item in the list
+     * then try to load more date... unless we know we are at the end of the list or there is already
+     * a request pending for loading more data
+     *
+     * @param itemIndex index of the item being requested
+     */
+    fun checkIfMorePagesAreNeeded(itemIndex: Int) {
+        if (itemIndex >= state.value.comics.size - 1 && !state.value.endReached && !state.value.isLoading) {
+            loadComicsPaginated()
         }
     }
 
