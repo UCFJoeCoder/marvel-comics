@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ucfjoe.marvelcomics.core.util.Resource
+import com.ucfjoe.marvelcomics.feature_marvel.domain.model.Page
 import com.ucfjoe.marvelcomics.feature_marvel.domain.use_case.GetCharacter
 import com.ucfjoe.marvelcomics.feature_marvel.domain.use_case.GetComics
 import com.ucfjoe.marvelcomics.feature_marvel.presentation.ui.UiEvent
@@ -24,7 +25,7 @@ class CharacterViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _state = mutableStateOf(CharacterState())
+    private val _state = mutableStateOf(CharacterState(page = Page(PAGE_SIZE)))
     val state: State<CharacterState> = _state
 
     private val _uiEvent = Channel<UiEvent>()
@@ -72,18 +73,18 @@ class CharacterViewModel @Inject constructor(
         loadComicsPaginated()
     }
 
-    fun loadComicsPaginated() {
+    private fun loadComicsPaginated() {
         viewModelScope.launch {
-            getComics(PAGE_SIZE, (PAGE_SIZE * state.value.page), state.value.character.characterId)
+            getComics(state.value.page, state.value.character.characterId)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
                             _state.value = state.value.copy(
                                 comics = state.value.comics + (result.data ?: emptyList()),
                                 endReached = PAGE_SIZE > result.data!!.count(),
-                                isLoading = false,
-                                page = state.value.page + 1
+                                isLoading = false
                             )
+                            state.value.page.nextPage()
                         }
 
                         is Resource.Error -> {

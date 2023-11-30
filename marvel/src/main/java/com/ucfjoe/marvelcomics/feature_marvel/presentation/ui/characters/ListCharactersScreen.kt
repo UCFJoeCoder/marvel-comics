@@ -84,14 +84,12 @@ fun ListCharactersScreen(
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(16.dp)
         ) {
-            items(state.characters.size) {
-                if (it >= state.characters.size - 1 && !state.endReached && !state.isLoading) {
-                    viewModel.loadCharactersPaginated()
-                }
+            items(state.characters.size) {index->
+                viewModel.checkIfMorePagesAreNeeded(index)
                 CharacterItem(
-                    character = state.characters[it],
+                    character = state.characters[index],
                     onCharacterClick = {
-                        viewModel.onEvent(CharactersEvent.OnCharacterClicked(state.characters[it]))
+                        viewModel.onEvent(CharactersEvent.OnCharacterClicked(state.characters[index]))
                     }
                 )
             }

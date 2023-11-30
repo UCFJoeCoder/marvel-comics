@@ -28,8 +28,8 @@ class MarvelRepositoryImpl(
     }
 
     override fun getCharacters(
-        limit: Int,
         offset: Int,
+        limit: Int,
         name: String
     ): Flow<Resource<List<Character>>> = flow {
         emit(Resource.Loading())
@@ -89,8 +89,8 @@ class MarvelRepositoryImpl(
     }
 
     override fun getComics(
-        limit: Int,
         offset: Int,
+        limit: Int,
         characterId: String
     ): Flow<Resource<List<Comic>>> = flow {
         emit(Resource.Loading())

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ucfjoe.marvelcomics.Screen
 import com.ucfjoe.marvelcomics.core.util.Resource
+import com.ucfjoe.marvelcomics.feature_marvel.domain.model.Page
 import com.ucfjoe.marvelcomics.feature_marvel.domain.use_case.GetCharacters
 import com.ucfjoe.marvelcomics.feature_marvel.domain.use_case.StoreCharacter
 import com.ucfjoe.marvelcomics.feature_marvel.presentation.ui.UiEvent
@@ -23,7 +24,7 @@ class CharactersViewModel @Inject constructor(
     private val storeCharacter: StoreCharacter
 ) : ViewModel() {
 
-    private val _state = mutableStateOf(CharactersState())
+    private val _state = mutableStateOf(CharactersState(page = Page(PAGE_SIZE)))
     val state: State<CharactersState> = _state
 
     private val _uiEvent = Channel<UiEvent>()
@@ -42,18 +43,18 @@ class CharactersViewModel @Inject constructor(
         loadCharactersPaginated()
     }
 
-    fun loadCharactersPaginated() {
+    private fun loadCharactersPaginated() {
         viewModelScope.launch {
-            getCharacters(PAGE_SIZE, (PAGE_SIZE * state.value.page), state.value.searchText)
+            getCharacters(state.value.page, state.value.searchText)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
                             _state.value = state.value.copy(
                                 characters = state.value.characters + (result.data ?: emptyList()),
-                                endReached = PAGE_SIZE > result.data!!.count(), //state.value.page * PAGE_SIZE >= result.data!!.count(),
-                                isLoading = false,
-                                page = state.value.page + 1
+                                endReached = PAGE_SIZE > result.data!!.count(),
+                                isLoading = false
                             )
+                            state.value.page.nextPage()
                         }
 
                         is Resource.Error -> {
@@ -77,6 +78,12 @@ class CharactersViewModel @Inject constructor(
         }
     }
 
+    fun checkIfMorePagesAreNeeded(itemIndex: Int) {
+        if (itemIndex >= state.value.characters.size - 1 && !state.value.endReached && !state.value.isLoading) {
+            loadCharactersPaginated()
+        }
+    }
+
     fun onSearch(searchText: String) {
         // Clear previous search Results by resetting everything back to default values
         // But set the search String
@@ -85,9 +92,9 @@ class CharactersViewModel @Inject constructor(
             isLoading = false,
             endReached = false,
             error = null,
-            searchText = searchText.trim(),
-            page = 0
+            searchText = searchText.trim()
         )
+        state.value.page.goToFirstPage()
         loadCharactersPaginated()
     }
 

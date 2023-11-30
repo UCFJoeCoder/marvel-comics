@@ -11,7 +11,7 @@ class GetCharacter(
 ) {
     operator fun invoke(characterId: String): Flow<Resource<Character>> {
         if (characterId.isBlank()) {
-            return flow { }
+            return flow { emit(Resource.Error("CharacterId is required.")) }
         }
         return repository.getCharacter(characterId)
     }

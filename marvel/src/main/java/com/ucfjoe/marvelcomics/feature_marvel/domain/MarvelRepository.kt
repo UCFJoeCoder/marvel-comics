@@ -7,11 +7,11 @@ import kotlinx.coroutines.flow.Flow
 
 interface MarvelRepository {
 
-    fun getCharacters(limit: Int, offset: Int, name: String = ""): Flow<Resource<List<Character>>>
+    fun getCharacters(offset: Int, limit: Int, name: String = ""): Flow<Resource<List<Character>>>
 
     fun getCharacter(characterId: String): Flow<Resource<Character>>
 
     suspend fun storeCharacter(character: Character)
 
-    fun getComics(limit: Int, offset: Int, characterId: String): Flow<Resource<List<Comic>>>
+    fun getComics(offset: Int, limit: Int, characterId: String): Flow<Resource<List<Comic>>>
 }
