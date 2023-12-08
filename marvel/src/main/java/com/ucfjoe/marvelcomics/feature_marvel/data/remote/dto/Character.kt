@@ -1,7 +1,5 @@
 package com.ucfjoe.marvelcomics.feature_marvel.data.remote.dto
 
-import com.ucfjoe.marvelcomics.feature_marvel.data.remote.toCharacter
-
 data class Character(
     val comics: ComicList? = null,
     val description: String?,
@@ -14,6 +12,4 @@ data class Character(
     val stories: StoryList? = null,
     val thumbnail: Image?,
     val urls: List<Url>? = emptyList()
-) {
-    fun getImagePath(): String = (thumbnail?.path ?: "") + "." + (thumbnail?.extension ?: "")
-}
+)
